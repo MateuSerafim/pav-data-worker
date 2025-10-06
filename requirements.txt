@@ -5,6 +5,7 @@ psycopg2-binary>=2.9.10
 asyncpg>=0.30.0
 azure-storage-blob
 aiohttp
-
+opencv-python
+numpy
 # worker
-pika
+aio-pika

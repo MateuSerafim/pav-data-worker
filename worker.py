@@ -1,20 +1,22 @@
-import pika
-import os
 from dotenv import load_dotenv
-import time
-
-from workers import pav_images_worker
 
 load_dotenv()
 
-RABBITMQ_URL = os.getenv("RABBITMQ_URL")
+import aio_pika
+import os
+import asyncio
+from workers import pav_images_worker
 
-time.sleep(25)
-connection = pika.BlockingConnection(pika.URLParameters(RABBITMQ_URL))
-channel = connection.channel()
+async def main():
+    print("Worker: pav image process - iniciado!")
+    connection = await aio_pika.connect_robust(os.getenv("RABBITMQ_URL"))
+    channel = await connection.channel()
+    queue = await channel.declare_queue("survey-images", durable=True)
+    await queue.consume(pav_images_worker.callback)
+    
+    try:
+        await asyncio.Future()
+    finally:
+        await connection.close()
 
-channel.queue_declare(queue="survey-images", durable=True)
-channel.basic_consume(queue="survey-images", 
-                      on_message_callback=pav_images_worker.callback)
-
-channel.start_consuming()
+asyncio.run(main())

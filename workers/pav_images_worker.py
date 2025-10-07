@@ -7,8 +7,9 @@ async def callback(message: aio_pika.IncomingMessage):
     async with message.process():
         file_register_id = message.body.decode()
 
-    print(f"processando imagem: {file_register_id}")
+    print(f"processando imagem: {file_register_id}!")
     general_service = await GeneralService.create()
+    
     try:
         register_maybe = await general_service.visual_register_service\
                                 .get_visual_register(uuid.UUID(file_register_id))
